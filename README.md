@@ -370,6 +370,10 @@
   #playBtn:hover { background: #f0c94a; }
   @keyframes playPulse { from { transform: scale(1); } to { transform: scale(1.06); } }
   #titleHint { position: relative; margin-top: 18px; font-size: 13px; color: #a9a3bf; }
+  #titleFooter {
+    position: absolute; left: 0; right: 0; bottom: 14px; text-align: center;
+    font-size: 13px; letter-spacing: 1.5px; color: #8f88a8;
+  }
   @media (prefers-reduced-motion: reduce) { #titleScreen *, #titleScreen { animation: none !important; } }
 </style>
 </head>
@@ -434,7 +438,7 @@
     <div id="quizModal">
       <div id="quizBox">
         <h2 id="quizTitle">⚔️ Le Général de Silla</h2>
-        <div class="sub">Réponds correctement pour obtenir le fragment de la boussole !</div>
+        <div class="sub" id="quizSub">Réponds correctement pour obtenir le fragment de la boussole !</div>
         <div id="quizQuestion"></div>
         <div id="quizOptions"></div>
         <div id="quizFeedback"></div>
@@ -462,11 +466,11 @@
     <div id="timelineModal">
       <div id="timelineBox">
         <h2>🧭 La Boussole retrouve sa mémoire</h2>
-        <div class="sub">Clique sur chaque époque visitée, puis complète la boussole.</div>
+        <div class="sub">Clique sur chaque époque pour la revisiter, puis passe le quiz final pour obtenir le dernier fragment.</div>
         <div id="timelineEras"></div>
         <div id="timelineDetail">Clique sur une époque ci-dessus pour afficher son résumé.</div>
-        <button id="compassBtn" disabled>Compléter la boussole 🧭</button>
-        <div id="compassHint">Revisite les 6 époques pour activer ce bouton.</div>
+        <button id="compassBtn" disabled>Passer le quiz final 🧭</button>
+        <div id="compassHint">Revisite les 6 époques pour activer le quiz final.</div>
       </div>
     </div>
     <div id="endScreen">
@@ -478,6 +482,7 @@
         <div id="endStats">
           <span>🧭 Fragments : <b id="endFragments">0</b>/6</span>
           <span>🪙 Connaissances : <b id="endCoins">0</b>/<b id="endCoinsTotal">0</b></span>
+          <span id="endQuizChip">🧠 Quiz final : <b id="endQuiz">0</b>/<b id="endQuizTotal">0</b></span>
           <span>⭐ Score : <b id="endScore">0</b></span>
         </div>
         <button id="replayBtn">↺ Rejouer l'aventure</button>
@@ -495,6 +500,7 @@
     <div id="titleSubtitle">Sur les traces de la Corée</div>
     <button id="playBtn">▶ Jouer</button>
     <div id="titleHint">Appuie sur Entrée ou Espace pour commencer • F : plein écran</div>
+    <div id="titleFooter">Club Corée du Lycée Pierre Mendès France. Anthony CAUDRON & Claude AI.</div>
   </div>
 </div>
 <canvas id="confettiCanvas"></canvas>
@@ -850,7 +856,9 @@ const level = {
         { q: "Quels sont les trois royaumes de cette période ?",
           options: ["Goguryeo, Baekje, Silla", "Joseon, Goryeo, Silla", "Baekje, Han, Yuan", "Goguryeo, Tang, Ming"], correct: 0 },
         { q: "Qui a unifié la péninsule coréenne en 668 après J.-C. ?",
-          options: ["Goguryeo, seul", "Baekje, avec l'aide du Japon", "Silla, avec l'aide de la dynastie Tang", "Une alliance entre les trois royaumes"], correct: 2 }
+          options: ["Goguryeo, seul", "Baekje, avec l'aide du Japon", "Silla, avec l'aide de la dynastie Tang", "Une alliance entre les trois royaumes"], correct: 2 },
+        { q: "Quel royaume était réputé pour sa culture et son art, et a influencé la culture japonaise ?",
+          options: ["Goguryeo", "Silla", "La dynastie Tang", "Baekje"], correct: 3 }
       ],
       waitLines: ["Halte, jeune voyageuse ! Je suis le Général de Silla.",
                   "Tu n'as pas encore rassemblé toutes les connaissances de cette portion du périple.",
@@ -866,7 +874,9 @@ const level = {
           options: ["Du royaume de Silla", "De la dynastie Goryeo", "De la ville de Hanyang", "De la dynastie Joseon"], correct: 1 },
         { q: "Qu'est-ce que le Tripitaka Koreana ?",
           options: ["Un palais royal de Songdo", "Un traité de paix avec les Mongols",
-                    "Une collection de textes bouddhistes gravés sur des tablettes de bois", "Un alphabet créé par le roi Taejo"], correct: 2 }
+                    "Une collection de textes bouddhistes gravés sur des tablettes de bois", "Un alphabet créé par le roi Taejo"], correct: 2 },
+        { q: "Quel peuple a envahi la Corée aux XIIe et XIIIe siècles, menaçant les tablettes ?",
+          options: ["Les Japonais", "Les Mongols", "Les Russes", "Les armées de la dynastie Tang"], correct: 1 }
       ],
       waitLines: ["Attends ! Toutes les tablettes ne sont pas encore en sécurité.",
                   "Il en reste quelque part dans le monastère ou sur le chemin de fuite.",
@@ -882,7 +892,9 @@ const level = {
           options: ["Le bouddhisme", "Le confucianisme", "Le taoïsme", "Le chamanisme"], correct: 1 },
         { q: "Qui a créé le Hangul, et pourquoi ?",
           options: ["Le roi Taejo, pour unifier les royaumes rivaux", "Le roi Sejong le Grand, pour améliorer l'alphabétisation du peuple",
-                    "Les moines bouddhistes, pour traduire les textes sacrés", "Les marchands, pour faciliter le commerce avec la Chine"], correct: 1 }
+                    "Les moines bouddhistes, pour traduire les textes sacrés", "Les marchands, pour faciliter le commerce avec la Chine"], correct: 1 },
+        { q: "Comment s'appelait l'élite lettrée qui dominait la société de Joseon ?",
+          options: ["Les Yangban", "Les marchands", "Les paysans", "Les artisans"], correct: 0 }
       ],
       waitLines: ["Bienvenue, jeune voyageuse. Avant de repartir, as-tu bien tout appris sur mon royaume ?",
                   "Il te reste des connaissances à recueillir dans Joseon.",
@@ -912,7 +924,9 @@ const level = {
           options: ["1945 à 1948", "1950 à 1953", "1953 à 1960", "1910 à 1945"], correct: 1 },
         { q: "Que symbolise la DMZ (zone démilitarisée) ?",
           options: ["La capitale commune des deux Corées", "La frontière séparant le Nord et le Sud depuis l'armistice de 1953",
-                    "Le lieu où le traité de paix a été signé", "Une région entièrement reconstruite après la guerre"], correct: 1 }
+                    "Le lieu où le traité de paix a été signé", "Une région entièrement reconstruite après la guerre"], correct: 1 },
+        { q: "Le long de quelle ligne la Corée a-t-elle été divisée après la Seconde Guerre mondiale ?",
+          options: ["Le fleuve Han", "La rivière Yalu", "Le 38e parallèle", "Le 25e parallèle"], correct: 2 }
       ],
       waitLines: ["Je veille sur la mémoire de ce conflit, pour qu'il ne soit jamais oublié.",
                   "Il te reste des connaissances à recueillir avant de pouvoir continuer.",
@@ -922,6 +936,42 @@ const level = {
       isFinal: false
     },
     {x:16010, y:340, w:40, h:60, name:"Haneul face à la boussole", icon:"🧭", color:"#d4af37", stroke:"#3a2f18", type:"timeline",
+      quizTitle:"🧭 Le Quiz Final",
+      quizSub:"Dernière épreuve : montre tout ce que tu as retenu de ton voyage à travers l'histoire de la Corée !",
+      quizQuestions: [
+        // — Les Trois Royaumes —
+        { q: "Quelle dynastie chinoise s'est alliée à Silla pour renverser ses rivaux ?",
+          options: ["La dynastie Ming", "La dynastie Yuan", "La dynastie Qing", "La dynastie Tang"], correct: 3 },
+        { q: "Quel royaume, situé au nord de la péninsule, était réputé pour sa force militaire ?",
+          options: ["Baekje", "Goguryeo", "Silla", "Goryeo"], correct: 1 },
+        // — La dynastie Goryeo —
+        { q: "Qui a fondé la dynastie Goryeo en 918 ?",
+          options: ["Yi Seong-gye", "Sejong le Grand", "Wang Geon", "Kim Il-sung"], correct: 2 },
+        { q: "Quelle religion jouait un rôle central dans la culture et la politique de Goryeo ?",
+          options: ["Le bouddhisme", "Le confucianisme", "Le christianisme", "Le chamanisme"], correct: 0 },
+        // — La dynastie Joseon —
+        { q: "Quelle capitale de Joseon est devenue celle de la Corée du Sud ?",
+          options: ["Songdo (Kaesong)", "Pyongyang", "Hanyang (Séoul)", "Incheon"], correct: 2 },
+        { q: "En 1392, quel général renverse Goryeo et fonde la dynastie Joseon ?",
+          options: ["Yi Seong-gye", "Wang Geon", "Sejong le Grand", "Kim Il-sung"], correct: 0 },
+        // — L'occupation japonaise —
+        { q: "En quelle année le Japon a-t-il officiellement annexé la Corée ?",
+          options: ["1392", "1910", "1945", "1950"], correct: 1 },
+        { q: "Pourquoi préserver la langue coréenne est-il devenu un acte de résistance ?",
+          options: ["Parce qu'elle était réservée aux nobles", "Parce qu'elle venait d'être inventée",
+                    "Parce que le Japon la jugeait trop difficile", "Parce que son enseignement était interdit dans les écoles"], correct: 3 },
+        // — La guerre de Corée —
+        { q: "Quel pays est intervenu aux côtés de la Corée du Nord près de la rivière Yalu ?",
+          options: ["Le Japon", "Les États-Unis", "La Chine", "La Mongolie"], correct: 2 },
+        { q: "Comment la guerre de Corée s'est-elle terminée en 1953 ?",
+          options: ["Par un armistice, sans traité de paix formel", "Par un traité de paix signé à Panmunjom",
+                    "Par la victoire totale du Sud", "Par la réunification du pays"], correct: 0 },
+        // — La Corée moderne —
+        { q: "Comment appelle-t-on l'essor économique sud-coréen des années 1960 ?",
+          options: ["La vague Hallyu", "Le miracle sur le fleuve Han", "Le grand bond en avant", "La révolution Joseon"], correct: 1 },
+        { q: "Quelle question reste ouverte entre la Corée du Nord et la Corée du Sud ?",
+          options: ["Le choix de la capitale", "Le nom du pays", "L'alphabet à utiliser", "Une possible réunification"], correct: 3 }
+      ],
       waitLines: ["La boussole n'est pas encore complète... il me manque encore des connaissances sur cette dernière époque.",
                   "Il en reste à recueillir, au Sud comme au Nord.",
                   "Revenons ici une fois notre collecte terminée."],
@@ -1183,6 +1233,7 @@ function startQuiz(guard) {
   quizIdx = 0;
   quizCorrectCount = 0;
   document.getElementById('quizTitle').textContent = guard.quizTitle;
+  document.getElementById('quizSub').textContent = guard.quizSub || 'Réponds correctement pour obtenir le fragment de la boussole !';
   quizModal.style.display = 'flex';
   renderQuizQuestion();
 }
@@ -1291,14 +1342,15 @@ function renderTimelineEras() {
       document.getElementById('compassHint').textContent =
         visitedEras.size < eras.length
           ? `${visitedEras.size}/${eras.length} époques revisitées.`
-          : "Toutes les époques ont été revisitées !";
+          : "Toutes les époques ont été revisitées : tu peux passer le quiz final !";
     };
     container.appendChild(btn);
   });
 }
 document.getElementById('compassBtn').onclick = () => {
   timelineModal.style.display = 'none';
-  onGuardComplete(currentGuard);
+  if (currentGuard && currentGuard.quizQuestions) startQuiz(currentGuard);   // quiz final : il donne le dernier fragment
+  else onGuardComplete(currentGuard);
 };
 
 // ============ POP-UP DE FIN + CONFETTIS ============
@@ -1414,11 +1466,19 @@ function stopConfetti() {
   cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
 }
 
-function showEndPopup() {
+function showEndPopup(guard) {
   document.getElementById('endFragments').textContent = fragmentsObtained;
   document.getElementById('endCoins').textContent = coinsCollected;
   document.getElementById('endCoinsTotal').textContent = originalCoins.length;
   document.getElementById('endScore').textContent = score;
+  const quizChip = document.getElementById('endQuizChip');
+  if (guard && guard.quizQuestions) {
+    document.getElementById('endQuiz').textContent = quizCorrectCount;
+    document.getElementById('endQuizTotal').textContent = guard.quizQuestions.length;
+    quizChip.style.display = '';
+  } else {
+    quizChip.style.display = 'none';
+  }
   endScreen.style.display = 'flex';
   endScreen.classList.remove('show');
   void endScreen.offsetWidth;          // relance l'animation d'apparition
@@ -1429,12 +1489,12 @@ document.getElementById('replayBtn').onclick = () => resetGame();
 
 function onGuardComplete(guard) {
   fragmentsObtained++;
-  score += (guard.type === 'quiz') ? (500 + quizCorrectCount * 250) : 700;
+  score += guard.quizQuestions ? (500 + quizCorrectCount * 250) : 700;
   updateUI();
   if (!guard.isFinal) showFragmentToast(guard.toast);   // le pop-up de fin remplace le bandeau pour le dernier fragment
   if (guard.isFinal) {
     levelComplete = true;
-    showEndPopup();
+    showEndPopup(guard);
   } else {
     // pas de blocage : le joueur continue simplement son chemin
     paused = false;
@@ -1935,6 +1995,13 @@ function showZoneTitle(idx) {
   void zoneBanner.offsetWidth;                   // relance l'animation depuis le début
   zoneBanner.classList.add('show');
 }
+
+// Le nom de zone se met en pause dès qu'une fenêtre est ouverte (dialogue, pièce, quiz, énigme, frise...)
+// et reprend exactement où il en était à la fermeture. `paused` est vrai tant qu'une fenêtre est ouverte.
+(function syncZoneBannerPause() {
+  zoneBanner.style.animationPlayState = paused ? 'paused' : 'running';
+  requestAnimationFrame(syncZoneBannerPause);
+})();
 
 // ============ ÉCRAN DE TITRE ============
 let titleActive = true;
